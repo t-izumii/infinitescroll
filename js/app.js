@@ -20,6 +20,11 @@ class app3 {
         this.startX = 0;
         this.velocity = 0;
 
+        this. LENGTH = 10;
+        this. WIDTH = 320;
+        this. SPACING = 80;
+        this. WIDTH_TOTAL = (this.WIDTH + this.SPACING) * this.LENGTH;
+
         this.init();
     }
 
@@ -78,7 +83,6 @@ class app3 {
             });
             this.mesh = new THREE.Mesh(geometry, material);
             this.mesh.position.x = i * 400 - (10 * 400 / 2);
-            console.log(this.mesh.position.x);
             this.meshes.push(this.mesh);
             this.scene.add(this.mesh);
         }
@@ -111,15 +115,17 @@ class app3 {
     }
 
     posReset() {
-        this.meshes.forEach(mesh => {
-            // length * (320 + 80) / 2 = 2000
-            if (mesh.position.x < -2000) {
-                mesh.position.x = 1600;
-            }
-
-            if (mesh.position.x > 1600) {
-                mesh.position.x = -2000;
-            }
+        // メッシュの位置を調整して画面内に収める
+        this.meshes.forEach((mesh , index) => {
+            // メッシュのx座標を取得
+            const x = mesh.position.x;
+            // サイン波による変位を計算
+            const s = Math.sign(x);
+            // 全体の幅でモジュロ演算して画面内に収める
+            const mx = (x + (this.WIDTH_TOTAL / 2) * s) % this.WIDTH_TOTAL;
+            // サイン波の変位を戻して最終位置を計算
+            const rx = mx - (this.WIDTH_TOTAL / 2) * s;
+            mesh.position.x = rx;
         });
     }
 
@@ -133,7 +139,7 @@ class app3 {
         });
 
         // Decay velocity for inertia effect
-        this.velocity *= 0.98; // Adjust decay factor as needed
+        this.velocity *= 0.97; // Adjust decay factor as needed
 
         this.posReset();
         requestAnimationFrame(this.render.bind(this));
